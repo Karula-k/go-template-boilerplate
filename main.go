@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/go-boilerplate-organizer/db"
+	"github.com/go-template-boilerplate/cmd/routes"
+	"github.com/go-template-boilerplate/db"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v3"
 )
 
 func startServer(app *fiber.App) {
@@ -16,7 +17,7 @@ func startServer(app *fiber.App) {
 
 func main() {
 	ctx := context.Background()
-	conn, err := db.InitDB(ctx)
+	conn, queries, err := db.InitDB(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,6 +40,7 @@ func main() {
 		AllowOrigins: "http://localhost:5173",
 		AllowHeaders: "Origin,Content-Type,Accept",
 	}))
+	routes.Routes(app, ctx, queries)
 	startServer(app)
 
 }
