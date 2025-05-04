@@ -44,3 +44,13 @@ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 ```bash
 make run
 ```
+
+## Goals
+
+-[x] login
+
+-[x] register
+
+-[] Swagger
+
+-[] permission management
