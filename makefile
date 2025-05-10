@@ -18,5 +18,14 @@ migratedown:
 sqlc:
 	sqlc generate
 
+swag_init:
+	swag init
+
+fmt:
+	swag fmt
+
+swag:
+	swag fmt && swag init
+
 run:
 	air

@@ -1,0 +1,79 @@
+definitions:
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "0"
+    required:
+    - password
+    - username
+    type: object
+  models.RegisterRequest:
+    properties:
+      password:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "0"
+    required:
+    - password
+    - username
+    type: object
+info:
+  contact: {}
+  description: This is an Boilerplate for Backend
+  termsOfService: http://swagger.io/terms/
+  title: Order Api
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login by username and password
+      parameters:
+      - description: login body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+        x-order: "1"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: register by username and password
+      parameters:
+      - description: login body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+        x-order: "1"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: register
+      tags:
+      - Auth
+swagger: "2.0"
