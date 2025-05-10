@@ -4,23 +4,36 @@ import (
 	"context"
 
 	"github.com/go-template-boilerplate/cmd/middlewares"
+	"github.com/go-template-boilerplate/cmd/models"
 	"github.com/go-template-boilerplate/cmd/utils"
 	"github.com/go-template-boilerplate/generated"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Login by username and password
+//
+//	@Summary		Login
+//	@Description	Login by username and password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.LoginRequest	true	"login body" extensions(x-order=1)
+//	@Success		200		{string}	string
+//	@Router			/auth/login [post]
 func LoginController(ctx context.Context, queries *generated.Queries) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		username := c.Params("username")
-		password := c.Params("password")
+		var req models.LoginRequest
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+		}
 
-		user, err := queries.GetUserByUsername(ctx, username)
+		user, err := queries.GetUserByUsername(ctx, req.Username)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "username not found"})
 		}
 
-		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid password"})
 
 		}
@@ -28,17 +41,28 @@ func LoginController(ctx context.Context, queries *generated.Queries) fiber.Hand
 	}
 }
 
+// Login by username and password
+//
+//	@Summary		register
+//	@Description	register by username and password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.RegisterRequest	true	"login body" extensions(x-order=1)
+//	@Success		200		{string}	string
+//	@Router			/auth/register [post]
 func RegisterController(ctx context.Context, queries *generated.Queries) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		username := c.Params("username")
-		password := c.Params("password")
-
-		hashedPassword, err := utils.HashedPassword(password)
+		var req models.RegisterRequest
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+		}
+		hashedPassword, err := utils.HashedPassword(req.Password)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to hash password"})
 		}
 		user, err := queries.CreateUsers(ctx, generated.CreateUsersParams{
-			Username: username,
+			Username: req.Username,
 			Password: hashedPassword,
 		})
 		if err != nil {
