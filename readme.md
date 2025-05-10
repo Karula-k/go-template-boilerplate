@@ -47,10 +47,12 @@ make run
 
 ## Goals
 
--[x] login
+- [x] login
 
--[x] register
+- [x] register
 
--[] Swagger
+- [ ] Swagger
 
--[] permission management
+- [ ] permission management
+
+- [ ] env management
