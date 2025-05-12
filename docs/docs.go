@@ -51,6 +51,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/refresh_token": {
+            "post": {
+                "description": "refresh token by body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh Token",
+                "parameters": [
+                    {
+                        "description": "refresh token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "description": "register by username and password",
@@ -102,6 +136,14 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "x-order": "1"
+                }
+            }
+        },
+        "models.RefreshTokenRequest": {
+            "type": "object",
+            "properties": {
+                "refreshToken": {
+                    "type": "string"
                 }
             }
         },

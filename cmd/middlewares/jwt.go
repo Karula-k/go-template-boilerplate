@@ -15,8 +15,8 @@ func GenerateToken(user *generated.User) (string, error) {
 		"username": user.Username,
 		"expired":  time.Now().Add(time.Hour).Unix(),
 	})
-
-	signedToken, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	secret := []byte(os.Getenv("JWT_SECRET"))
+	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
 	}
@@ -46,8 +46,8 @@ func GenerateRefreshToken(user *generated.User) (string, error) {
 		"username": user.Username,
 		"expired":  time.Now().Add(time.Hour * 7 * 24).Unix(),
 	})
-
-	signedToken, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	secret := []byte(os.Getenv("JWT_SECRET"))
+	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
 	}
@@ -63,6 +63,5 @@ func GeneratedAccessAndRefreshTokens(user *generated.User) (string, string, erro
 	if err != nil {
 		return "", "", err
 	}
-
 	return accessToken, refreshToken, nil
 }

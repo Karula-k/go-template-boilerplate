@@ -37,7 +37,16 @@ func LoginController(ctx context.Context, queries *generated.Queries) fiber.Hand
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid password"})
 
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "message": "logged in"})
+		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user)
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to create token"})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "message": "user created", "data": user,
+			"access_token":  token,
+			"refresh_token": refreshToken,
+		})
 	}
 }
 
@@ -81,15 +90,29 @@ func RegisterController(ctx context.Context, queries *generated.Queries) fiber.H
 	}
 }
 
+// Refresh Token by header
+//
+//	@Summary		Refresh Token
+//	@Description	refresh token by body
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.RefreshTokenRequest true	"refresh token"
+//	@Success		200		{string}	string
+//	@Router			/auth/refresh_token [post]
 func RefreshToken(ctx context.Context, queries *generated.Queries) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authHeader := c.Params("refreshToken")
+		var body models.RefreshTokenRequest
 
-		if authHeader == "" {
+		if err := c.BodyParser(&body); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+		}
+
+		if body.RefreshToken == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "missing refresh token"})
 		}
 
-		userID, error := middlewares.VerifyToken(authHeader)
+		userID, error := middlewares.VerifyToken(body.RefreshToken)
 
 		if error != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid jwt"})
