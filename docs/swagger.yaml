@@ -11,6 +11,11 @@ definitions:
     - password
     - username
     type: object
+  models.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    type: object
   models.RegisterRequest:
     properties:
       password:
@@ -51,6 +56,28 @@ paths:
           schema:
             type: string
       summary: Login
+      tags:
+      - Auth
+  /auth/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: refresh token by body
+      parameters:
+      - description: refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Refresh Token
       tags:
       - Auth
   /auth/register:
