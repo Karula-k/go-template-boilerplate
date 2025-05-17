@@ -1,10 +1,11 @@
 package middlewares
 
 import (
+	"github.com/go-template-boilerplate/cmd/models"
 	"github.com/gofiber/fiber/v2"
 )
 
-func MiddleWare() fiber.Handler {
+func MiddleWare(env *models.EnvModel) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token := c.Get("Authorization")
 		if token == "" {
@@ -12,7 +13,7 @@ func MiddleWare() fiber.Handler {
 				"message": "missing token",
 			})
 		}
-		id, err := VerifyToken(token)
+		id, err := VerifyToken(token, env)
 		if err != nil {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 				"message": "invalid token",

@@ -21,7 +21,7 @@ import (
 //	@Param			request	body		models.LoginRequest	true	"login body" extensions(x-order=1)
 //	@Success		200		{string}	string
 //	@Router			/auth/login [post]
-func LoginController(ctx context.Context, queries *generated.Queries) fiber.Handler {
+func LoginController(ctx context.Context, queries *generated.Queries, env *models.EnvModel) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req models.LoginRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -37,7 +37,7 @@ func LoginController(ctx context.Context, queries *generated.Queries) fiber.Hand
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid password"})
 
 		}
-		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user)
+		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user, env)
 
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to create token"})
@@ -60,7 +60,7 @@ func LoginController(ctx context.Context, queries *generated.Queries) fiber.Hand
 //	@Param			request	body		models.RegisterRequest	true	"login body" extensions(x-order=1)
 //	@Success		200		{string}	string
 //	@Router			/auth/register [post]
-func RegisterController(ctx context.Context, queries *generated.Queries) fiber.Handler {
+func RegisterController(ctx context.Context, queries *generated.Queries, env *models.EnvModel) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req models.RegisterRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -77,7 +77,7 @@ func RegisterController(ctx context.Context, queries *generated.Queries) fiber.H
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to create user"})
 		}
-		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user)
+		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user, env)
 
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to create token"})
@@ -100,7 +100,7 @@ func RegisterController(ctx context.Context, queries *generated.Queries) fiber.H
 //	@Param			request	body		models.RefreshTokenRequest true	"refresh token"
 //	@Success		200		{string}	string
 //	@Router			/auth/refresh_token [post]
-func RefreshToken(ctx context.Context, queries *generated.Queries) fiber.Handler {
+func RefreshToken(ctx context.Context, queries *generated.Queries, env *models.EnvModel) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body models.RefreshTokenRequest
 
@@ -112,7 +112,7 @@ func RefreshToken(ctx context.Context, queries *generated.Queries) fiber.Handler
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "missing refresh token"})
 		}
 
-		userID, error := middlewares.VerifyToken(body.RefreshToken)
+		userID, error := middlewares.VerifyToken(body.RefreshToken, env)
 
 		if error != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid jwt"})
@@ -124,7 +124,7 @@ func RefreshToken(ctx context.Context, queries *generated.Queries) fiber.Handler
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to get user"})
 		}
 
-		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user)
+		token, refreshToken, err := middlewares.GeneratedAccessAndRefreshTokens(&user, env)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to get refresh token"})
 		}
