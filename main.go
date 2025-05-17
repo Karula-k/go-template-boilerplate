@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/go-template-boilerplate/cmd/config"
 	"github.com/go-template-boilerplate/cmd/routes"
 	"github.com/go-template-boilerplate/db"
 	_ "github.com/go-template-boilerplate/docs"
@@ -12,8 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func startServer(app *fiber.App) {
-	log.Fatal(app.Listen(":4001"))
+func startServer(app *fiber.App, port string) {
+	log.Fatal(app.Listen(port))
 }
 
 // @title			Order Api
@@ -22,6 +23,10 @@ func startServer(app *fiber.App) {
 // @termsOfService	http://swagger.io/terms/
 func main() {
 	ctx := context.Background()
+	env, err := config.EnvConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	conn, queries, err := db.InitDB(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +50,6 @@ func main() {
 		AllowOrigins: "http://localhost:5173",
 		AllowHeaders: "Origin,Content-Type,Accept",
 	}))
-	routes.Routes(app, ctx, queries)
-	startServer(app)
-
+	routes.Routes(app, ctx, queries, &env)
+	startServer(app, ":"+env.Port)
 }

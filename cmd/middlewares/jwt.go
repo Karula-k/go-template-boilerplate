@@ -2,20 +2,20 @@ package middlewares
 
 import (
 	"errors"
-	"os"
 	"time"
 
+	"github.com/go-template-boilerplate/cmd/models"
 	"github.com/go-template-boilerplate/generated"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateToken(user *generated.User) (string, error) {
+func GenerateToken(user *generated.User, env *models.EnvModel) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.ID,
 		"username": user.Username,
 		"expired":  time.Now().Add(time.Hour).Unix(),
 	})
-	secret := []byte(os.Getenv("JWT_SECRET"))
+	secret := []byte(env.JwtSecret)
 	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
@@ -23,9 +23,9 @@ func GenerateToken(user *generated.User) (string, error) {
 	return signedToken, nil
 }
 
-func VerifyToken(tokenString string) (int64, error) {
+func VerifyToken(tokenString string, env *models.EnvModel) (int64, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
+		return []byte(env.JwtSecret), nil
 	})
 
 	if err != nil {
@@ -40,13 +40,13 @@ func VerifyToken(tokenString string) (int64, error) {
 	return 0, errors.New("invalid token")
 }
 
-func GenerateRefreshToken(user *generated.User) (string, error) {
+func GenerateRefreshToken(user *generated.User, env *models.EnvModel) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.ID,
 		"username": user.Username,
 		"expired":  time.Now().Add(time.Hour * 7 * 24).Unix(),
 	})
-	secret := []byte(os.Getenv("JWT_SECRET"))
+	secret := []byte(env.JwtSecret)
 	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
@@ -54,12 +54,12 @@ func GenerateRefreshToken(user *generated.User) (string, error) {
 	return signedToken, nil
 }
 
-func GeneratedAccessAndRefreshTokens(user *generated.User) (string, string, error) {
-	accessToken, err := GenerateToken(user)
+func GeneratedAccessAndRefreshTokens(user *generated.User, env *models.EnvModel) (string, string, error) {
+	accessToken, err := GenerateToken(user, env)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := GenerateRefreshToken(user)
+	refreshToken, err := GenerateRefreshToken(user, env)
 	if err != nil {
 		return "", "", err
 	}
