@@ -51,8 +51,8 @@ make run
 
 - [x] register
 
-- [ ] Swagger
+- [x] Swagger
 
 - [ ] permission management
 
-- [ ] env management
+- [x] env management
